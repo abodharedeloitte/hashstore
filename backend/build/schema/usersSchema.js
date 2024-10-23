@@ -41,6 +41,9 @@ const userSchema = new mongoose_1.Schema({
             },
             price: {
                 type: Number
+            },
+            payment_status: {
+                type: Boolean,
             }
         }
     ]

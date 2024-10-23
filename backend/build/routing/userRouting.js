@@ -12,6 +12,41 @@ const model_1 = require("../module/model");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const jwt_secret_key = 'JWTAuthLogin';
+const jwtAuth_1 = require("../middleware/jwtAuth");
+const joi_1 = __importDefault(require("joi"));
+const registerSchema = joi_1.default.object({
+    name: joi_1.default.string().required().messages({
+        'string.empty': 'Name is required',
+    }),
+    mobile: joi_1.default.string().pattern(/^[0-9]+$/).required().messages({
+        'string.empty': 'Mobile number is required',
+        'string.pattern.base': 'Invalid mobile number',
+    }),
+    emailID: joi_1.default.string().email().required().custom((value, helpers) => {
+        if (!value.endsWith('@deloitte.com')) {
+            return helpers.message({ custom: 'Email must be a @deloitte.com address' });
+        }
+        return value;
+    }).messages({
+        'string.empty': 'Email is required',
+        'string.email': 'Invalid email address',
+    }),
+    password: joi_1.default.string().min(6).required().messages({
+        'string.empty': 'Password is required',
+        'string.min': 'Password must be at least 6 characters long',
+    }),
+});
+const validateRegister = (req, res, next) => {
+    const { error } = registerSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+        const errors = error.details.map(detail => ({
+            message: detail.message,
+            path: detail.path,
+        }));
+        return res.status(400).json({ status: 400, errors });
+    }
+    next();
+};
 function generateRandomId() {
     const timestamp = Math.floor(Date.now() / 1000);
     const rendomPart = Array.from({ length: 4 }, () => {
@@ -25,7 +60,7 @@ function isValidEmail(email) {
     const gmailRegex = /^[a-zA-Z0-9._%+-]+@deloitte\.com$/;
     return gmailRegex.test(email);
 }
-userRouter.post('/register', async (req, res) => {
+userRouter.post('/register', validateRegister, async (req, res) => {
     try {
         let { name, mobile, emailID, password } = req.body;
         const registeredEmailID = await model_1.userModel.findOne({ emailID: emailID });
@@ -70,7 +105,6 @@ userRouter.post('/login', async (req, res) => {
         }
         const token = jsonwebtoken_1.default.sign({ user_id: user[0]['user_id'], emailID: user[0]['emailID'] }, jwt_secret_key, { expiresIn: '1h' });
         console.log("Token", token);
-        res.cookie("hashstoretoken", token, { httpOnly: true });
         res.json({ status: 200, message: 'Login Successfully', result: user, token: token });
     }
     catch (error) {
@@ -78,7 +112,7 @@ userRouter.post('/login', async (req, res) => {
         res.json({ status: 500, message: "Login Failed" });
     }
 });
-userRouter.post('/forgotPassword', async (req, res) => {
+userRouter.post('/forgotPassword', jwtAuth_1.cookieJWTAuth, async (req, res) => {
     try {
         let { emailID, password } = req.body;
         if (!isValidEmail(emailID)) {
@@ -99,7 +133,7 @@ userRouter.post('/forgotPassword', async (req, res) => {
         res.json({ status: 500, message: "Failed to password change" });
     }
 });
-userRouter.post('/getUserItems', async (req, res) => {
+userRouter.post('/getUserItems', jwtAuth_1.cookieJWTAuth, async (req, res) => {
     try {
         console.log(req.body);
         let { user_id } = req.body;
@@ -111,9 +145,8 @@ userRouter.post('/getUserItems', async (req, res) => {
         res.json({ status: 500, message: "Failed to get user items" });
     }
 });
-userRouter.post('/addItemToCard', async (req, res) => {
+userRouter.post('/addItemToCard', jwtAuth_1.cookieJWTAuth, async (req, res) => {
     try {
-        console.log(req.body);
         let { address, payment_mode, quantity } = req.body.form;
         let { user_id, item_id, price } = req.body;
         let status = "Order Received";
@@ -125,7 +158,8 @@ userRouter.post('/addItemToCard', async (req, res) => {
                     payment_mode: payment_mode,
                     status: status,
                     quantity: quantity,
-                    price: price
+                    price: price,
+                    payment_status: payment_mode == 'Cash On Delivary' ? false : true
                 }
             }
         }, { new: true });
@@ -133,6 +167,7 @@ userRouter.post('/addItemToCard', async (req, res) => {
             res.json({ status: 404, message: "User not found" });
             return;
         }
+        await model_1.itemModel.updateOne({ item_id: item_id }, { $inc: { selled_quantity: quantity } });
         res.json({ status: 200, message: "Item added successfully", result: user });
     }
     catch (error) {
@@ -140,7 +175,7 @@ userRouter.post('/addItemToCard', async (req, res) => {
         res.json({ status: 500, message: "Failed to add item" });
     }
 });
-userRouter.post('/removeItemFromCard', async (req, res) => {
+userRouter.post('/removeItemFromCard', jwtAuth_1.cookieJWTAuth, async (req, res) => {
     try {
         let { user_id, item_id } = req.body;
         const user = await model_1.userModel.findOneAndUpdate({ user_id: user_id }, {
@@ -161,7 +196,7 @@ userRouter.post('/removeItemFromCard', async (req, res) => {
         res.json({ status: 500, message: "Failed to remove item" });
     }
 });
-userRouter.delete('/deleteUserAccount', async (req, res) => {
+userRouter.delete('/deleteUserAccount', jwtAuth_1.cookieJWTAuth, async (req, res) => {
     try {
         let { user_id } = req.body;
         await model_1.userModel.deleteOne({ user_id: user_id });

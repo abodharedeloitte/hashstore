@@ -6,6 +6,10 @@ const itemsSchema: Schema = new Schema({
         type: String,
         unique: true
     },
+    user_id: {
+        type: String,
+        require: true
+    },
     category: {
         type: String,
         enum: ['Mobile', 'Home & Kitchen', 'Electronics', 'Grocery']
@@ -27,6 +31,11 @@ const itemsSchema: Schema = new Schema({
     quantity: {
         type: Number,
         require: true
+    },
+    selled_quantity: {
+        type: Number,
+        require: true,
+        default:0
     },
     status: {
         type: Boolean,

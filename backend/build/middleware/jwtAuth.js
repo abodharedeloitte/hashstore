@@ -8,10 +8,16 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const jwt_secret_key = 'JWTAuthLogin';
 const cookieJWTAuth = (req, res, next) => {
     try {
-        const token = req.cookies.hashstoretoken;
-        const user = jsonwebtoken_1.default.verify(token, jwt_secret_key);
-        console.log(user);
-        req.user = user;
+        if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+            let token = req.headers.authorization.split('')[1];
+            console.log(token);
+            const user = jsonwebtoken_1.default.verify(token, jwt_secret_key);
+            console.log(token);
+            req.user = user;
+        }
+        // const token = req.cookies.hashstoretoken;
+        // console.log("cookies",req.cookies);
+        // const token = localStorage.getItem('hashstoretoken');
         next();
     }
     catch (error) {

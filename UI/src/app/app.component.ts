@@ -22,22 +22,36 @@ interface Item {
 })
 export class AppComponent {
 
+  item_type = 'dashboard';
   alreadyLogin: boolean = false;
   component: boolean = false
   add_to_card: boolean = false;
+  item_category = ['Mobile', 'Home & Kitchen', 'Electronics', 'Grocery'];
 
   add_to_card_form: FormGroup
+  sell_item_form: FormGroup
 
   constructor(private fb: FormBuilder, private dialog: MatDialog, private snackBar: MatSnackBar, private backendService: ServiceService, private router: Router) {
     this.add_to_card_form = this.fb.group({
       address: ['', Validators.required],
-      payment_mode: ['', Validators.required],
-      quantity: ['Online', Validators.required],
+      payment_mode: ['Online', Validators.required],
+      quantity: ['', Validators.required],
     });
+
+    this.sell_item_form = this.fb.group({
+      name: ['', Validators.required],
+      quantity: ['', Validators.required],
+      category: ['', Validators.required],
+      desc: ['', Validators.required],
+      price: ['', Validators.required],
+      img: ['', Validators.required],
+      user_id: ['', Validators.required]
+    })
 
   }
 
   products: Item[] = [];
+  users_sell_items: any[] = [];
   auth: any;
   ngOnInit() {
     // localStorage.clear()
@@ -57,8 +71,20 @@ export class AppComponent {
       this.alreadyLogin = false
     }
 
+    this.accessAllItem();
+  }
+
+  accessAllItem() {
     this.backendService.getAllItems().subscribe((res) => {
-      this.products = res.result;
+      if (res.result) {
+        this.products = res.result;
+        this.products.forEach((item: any) => {
+          if (item.user_id == this.auth) {
+            this.users_sell_items.push(item);
+          }
+        })
+        console.log(this.users_sell_items)
+      }
     })
   }
 
@@ -110,7 +136,6 @@ export class AppComponent {
 
   }
   login() {
-    console.log('Login called')
     const dialog = this.dialog.open(LoginComponent, {
       data: {
         title: 'Login',
@@ -125,6 +150,7 @@ export class AppComponent {
             localStorage.setItem("customer_auth", res.result[0]['user_id']);
             localStorage.setItem("customer_authExpiration", expirationDate.toString());
             this.alreadyLogin = true
+            this.snackBar.open(`Login Successfully`, 'Close', { duration: 3000 });
           } else {
             this.snackBar.open(`${res.message}`, 'Close', { duration: 3000 });
           }
@@ -133,6 +159,12 @@ export class AppComponent {
     })
   }
 
+  logOut() {
+    localStorage.clear();
+    this.component = false;
+    this.add_to_card = false;
+    this.alreadyLogin=false;
+  }
   userId: any;
   user_data: any;
   users_purschase_items: any[] = [];
@@ -164,6 +196,7 @@ export class AppComponent {
   addToCard(data: any) {
     if (this.alreadyLogin) {
       this.selected_item = data;
+      console.log(this.selected_item);
       this.add_to_card = true;
       this.component = false;
     } else {
@@ -183,6 +216,9 @@ export class AppComponent {
           this.add_to_card = false;
           this.component = true;
           this.profile();
+          if (this.add_to_card_form.get('payment_mode')?.value === 'Online') {
+            this.payment(item_id, price, 'Online');
+          }
         }
       })
     } else {
@@ -190,12 +226,20 @@ export class AppComponent {
     }
   }
 
-  deleteItemFromCard(item_id: any) {
+  deleteItemFromCard(item_id: any, type: any) {
     console.log(item_id, this.auth);
-    this.backendService.removeItemFromCard(item_id, this.auth).subscribe((res) => {
-      console.log(res);
-      this.users_purschase_items = this.users_purschase_items.filter(pro => pro.item_id === item_id);
-    })
+    if (type === 'from_my_item') {
+      this.backendService.removeItemFromCard(item_id, this.auth).subscribe((res) => {
+        console.log(res);
+        this.users_purschase_items = this.users_purschase_items.filter(pro => pro.item_id === item_id);
+      })
+    } else if (type == 'from_sell_card') {
+      this.backendService.deleteItemById(item_id).subscribe((res) => {
+        if (res.result) {
+          this.users_sell_items = this.users_sell_items.filter(pro => pro.item_id !== item_id);
+        }
+      })
+    }
   }
 
   payment(item_id: any, amount: any, payment_mode: any) {
@@ -204,5 +248,30 @@ export class AppComponent {
     this.backendService.generateTransaction(this.auth, item_id, amount, payment_mode, paymentType, type).subscribe((res) => {
       console.log(res);
     })
+  }
+
+  change_item_type(type: any) {
+    if (type) {
+      this.item_type = type;
+    }
+  }
+  onFileChange(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.sell_item_form.patchValue({
+        img: `assets/${file.name}`
+      });
+    }
+  }
+
+  addItem() {
+    this.sell_item_form.patchValue({ user_id: this.auth });
+    console.log(this.sell_item_form.value, this.sell_item_form.valid);
+    if (this.sell_item_form.valid) {
+      this.backendService.addItem(this.sell_item_form.value).subscribe((res) => {
+        console.log(res)
+        this.accessAllItem();
+      })
+    }
   }
 }
