@@ -95,6 +95,8 @@ export class AppComponent {
   }
 
   home() {
+    this.component = false;
+    this.add_to_card = false;
   }
 
   register() {
