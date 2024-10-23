@@ -1,0 +1,8 @@
+$primaryColour:#b38405;
+$secondaryColour:#6e6e07;
+@mixin important-text {
+    color: $primaryColour;
+    font-size: 25px;
+    font-weight: bold;
+    border: 1px solid blue;
+}

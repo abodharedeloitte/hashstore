@@ -1,0 +1,90 @@
+<div *ngIf="data['title'] == 'Register'">
+  <ng-container>
+    <h2 mat-dialog-title>Register</h2>
+    <mat-dialog-content class="mat-typography">
+      <form [formGroup]="register_form" class="d-grid justify-content-center">
+        <div class="d-flex align-items-baseline justify-content-start">
+          <div class="col-md-4 col-sm-6 col-xs-12 fw-bold label">
+            Name :<span class="text-danger">*</span>
+          </div>
+          <mat-form-field class="col-sm-8 input-field">
+            <input type="text" matInput formControlName="name" />
+          </mat-form-field>
+        </div>
+        <div class="d-flex align-items-baseline justify-content-start">
+          <div class="col-md-4 col-sm-6 col-xs-12 fw-bold label">
+            Mobile Number :<span class="text-danger">*</span>
+          </div>
+          <mat-form-field class="col-sm-8 input-field">
+            <input type="number" matInput formControlName="mobile" />
+          </mat-form-field>
+        </div>
+        <div class="d-flex align-items-baseline justify-content-start">
+          <div class="col-md-4 col-sm-6 col-xs-12 fw-bold label">
+            Email Id :<span class="text-danger">*</span>
+          </div>
+          <mat-form-field class="col-sm-8 input-field">
+            <input matInput formControlName="emailID" />
+          </mat-form-field>
+        </div>
+        <div class="d-flex align-items-baseline justify-content-start">
+          <div class="col-md-4 col-sm-6 col-xs-12 fw-bold label">
+            Password :<span class="text-danger">*</span>
+          </div>
+          <mat-form-field class="col-sm-8 input-field">
+            <input type="password" matInput formControlName="password" />
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button
+        mat-button
+        [mat-dialog-close]="true"
+        cdkFocusInitial
+        (click)="submitRegisterForm()"
+      >
+        Register
+      </button>
+    </mat-dialog-actions>
+  </ng-container>
+</div>
+
+<div *ngIf="data['title'] == 'Login'" class="login">
+  <ng-container>
+    <h2 mat-dialog-title>Login</h2>
+    <mat-dialog-content class="mat-typography">
+      <form [formGroup]="login_form" class="d-grid justify-content-center">
+        <div class="d-flex align-items-baseline justify-content-start">
+          <div class="col-md-4 col-sm-6 col-xs-12 fw-bold label">
+            Email Id :<span class="text-danger">*</span>
+          </div>
+          <mat-form-field class="col-sm-8 input-field">
+            <input matInput formControlName="emailID" />
+          </mat-form-field>
+        </div>
+        <div class="d-flex align-items-baseline justify-content-start">
+          <div class="col-md-4 col-sm-6 col-xs-12 fw-bold label">
+            Password :<span class="text-danger">*</span>
+          </div>
+          <mat-form-field class="col-sm-8 input-field">
+            <input type="password" matInput formControlName="password" />
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button
+        mat-button
+        [mat-dialog-close]="true"
+        cdkFocusInitial
+        (click)="submitLoginForm()"
+      >
+        Login
+      </button>
+    </mat-dialog-actions>
+  </ng-container>
+</div>
+

@@ -1,0 +1,81 @@
+/* You can add global styles to this file, and also import other style files */
+
+// body {
+//     background-color: rgb(254, 254, 254);
+// }
+// .cdk-describedby-message-container {
+//     display: none !important;
+// }
+@import "src/theme";
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+html,
+body {
+    margin: 0px;
+    // height: 100%;
+    box-sizing: border-box;
+    // overflow: hidden;
+    scroll-behavior: smooth;
+    touch-action: auto;
+}
+
+.w-90 {
+    width: 90% !important;
+}
+
+.custom-scroll-bar {
+    overflow: auto;
+}
+
+* {
+    font: Roboto, Helvetica Neue, sans-serif;
+}
+
+mat-toolbar {
+    background-color: #6e6e07 !important;
+    color: black !important;
+}
+
+.mat-mdc-tab:not(.mat-mdc-tab-disabled) .mdc-tab-indicator__content--underline,
+.mat-mdc-tab-link:not(.mat-mdc-tab-disabled) .mdc-tab-indicator__content--underline {
+    border-color: #6e6e07 !important;
+}
+
+.mat-mdc-tab:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label,
+.mat-mdc-tab-link:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label {
+    color: #b38405 !important;
+    font-weight: 500 !important;
+}
+
+.mat-mdc-chip-set .mdc-evolution-chip-set__chips {
+    display: flex !important;
+    justify-content: space-evenly !important;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.row {
+    width: 100%;
+    margin: 0;
+}
+
+.mat-drawer-content {
+    // top: 20px !important;
+    position: relative;
+    z-index: 1;
+    display: block;
+    height: 100%;
+    overflow: auto;
+}
+
+mat-drawer-container {
+    min-height: 93vh !important;
+}

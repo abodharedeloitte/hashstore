@@ -1,0 +1,176 @@
+<div class="container-fluid p-0">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">HASH STORE</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div
+      class="collapse navbar-collapse justify-content-end"
+      id="navbarSupportedContent"
+    >
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item" (click)="home()">
+          <a class="nav-link">Home</a>
+        </li>
+        <li class="nav-item" (click)="register()" *ngIf="!alreadyLogin">
+          <a class="nav-link">Register</a>
+        </li>
+        <li class="nav-item" (click)="login()" *ngIf="!alreadyLogin">
+          <a class="nav-link">Login</a>
+        </li>
+        <li class="nav-item" (click)="profile()" *ngIf="alreadyLogin">
+          <a class="nav-link">Profile</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <div class="row p-0">
+    <img
+      src="https://briansolis.com/wp-content/uploads/2022/01/eCommerce-Website-Components-photo.jpg"
+      class="img img-fluid p-0"
+      alt="banner img"
+    />
+    <ng-container *ngIf="!component && !add_to_card">
+      <div class="row p-0">
+        <div class="row p-0 mt-4 font-bold">
+          <h3>Products</h3>
+          <div class="row">
+            <div class="col-sm-2 col-4 col-md-3" *ngFor="let item of products">
+              <div class="card mb-4">
+                <img
+                  class="card-img-top"
+                  src="{{ item.img }}"
+                  alt="Card image cap"
+                />
+                <div class="card-body">
+                  <p class="card-text">Name: {{ item.name }}</p>
+                  <p class="card-text text-truncate">Desc: {{ item.desc }}</p>
+                  <p class="card-text">Price:{{ item.price }}</p>
+                  <a href="#" class="btn btn-primary" (click)="addToCard(item)"
+                    >Add to card</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-conatiner *ngIf="component && !add_to_card">
+      <div class="d-flex profile mb-4">
+        <div class="card col-md-4">
+          <div class="card-body">
+            <div class="row">
+              <div class="user_img d-grid justify-content-center">
+                <img
+                  class="profile_img mb-2"
+                  src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                  alt=""
+                />
+              </div>
+              <div>
+                <h4>Name: {{ user_data["name"] }}</h4>
+                <h4>Email ID: {{ user_data["emailID"] }}</h4>
+                <h4>Mobile No.: {{ user_data["mobile"] }}</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-6 col-md-4 mb-4" *ngFor="let card of users_purschase_items">
+            <div class="card">
+              <img
+                class="card-img-top"
+                src="{{ card.img }}"
+                alt="Card image cap"
+              />
+              <div class="card-body">
+                <p class="card-text">Name : {{ card.name }}</p>
+                <p class="card-text text-truncate">Desc : {{ card.desc }}</p>
+                <p class="card-text">Price : {{ card.price }}</p>
+                <p class="card-text">Quantity : {{ card.quantity }}</p>
+                <p class="card-text">Payment Mode : {{ card.payment_mode }}</p>
+                <p class="card-text">Shipment Address : {{ card.shipment_address }}</p>
+                <div class="d-flex justify-content-between">
+                  <button class="btn btn-danger" (click)="deleteItemFromCard(card.item_id)">Delete Item</button>
+                  <button class="btn btn-primary" *ngIf="card.payment_mode === 'Cash On Delivary' && !card.payment_status" (click)="payment(card.item_id, card.price, card.payment_mode)">Do Payment</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-conatiner>
+    <ng-conatiner *ngIf="add_to_card">
+      <div class="d-flex add_to_card">
+        <div class="card col-md-4" style="width: 30rem;">
+          <img
+            class="card-img-top"
+            src="{{ selected_item.img }}"
+            alt="Card image cap"
+          />
+          <div class="card-body">
+            <p class="card-text">Name: {{ selected_item.name }}</p>
+            <p class="card-text text-truncate">
+              Desc: {{ selected_item.desc }}
+            </p>
+            <p class="card-text">Price: {{ selected_item.price }}</p>
+          </div>
+        </div>
+        <div class="card col-md-6 p-2" style="width: auto;">
+          <div class="card-body">
+            <form
+              [formGroup]="add_to_card_form"
+              class="d-grid justify-content-center"
+            >
+              <div class="d-flex align-items-baseline justify-content-start">
+                <div class="col-md-4 col-sm-6 col-xs-12 fw-bold label">
+                  Shipment Address :<span class="text-danger">*</span>
+                </div>
+                <mat-form-field class="col-sm-8 input-field">
+                  <input type="text" matInput formControlName="address" required />
+                </mat-form-field>
+              </div>
+              <div class="d-flex align-items-baseline justify-content-start">
+                <div class="col-md-4 col-sm-6 col-xs-12 fw-bold label">
+                  Quantity :<span class="text-danger">*</span>
+                </div>
+                <mat-form-field class="col-sm-8 input-field">
+                  <input type="number" matInput formControlName="quantity" [(ngModel)]="qty"  required/>
+                </mat-form-field>
+              </div>
+              <div class="d-flex align-items-baseline justify-content-start">
+                <div class="col-md-4 col-sm-6 col-xs-12 fw-bold label">
+                  Payment Mode :<span class="text-danger">*</span>
+                </div>
+                <mat-form-field class="col-sm-8 input-field">
+                  <select id="paymentMode" formControlName="payment_mode" class="form-control">
+                    <option *ngFor="let mode of paymentModes" [value]="mode">{{ mode }}</option>
+                  </select>
+                </mat-form-field>
+              </div>
+              <div class="d-flex align-items-baseline justify-content-start">
+                <div class="col-md-4 col-sm-6 col-xs-12 fw-bold label">
+                  Total Amount :<span class="text-danger">*</span>
+                </div>
+                <mat-form-field class="col-sm-8 input-field">
+                 {{selected_item.price * qty | number :'1.1-2'}}
+                </mat-form-field>
+              </div>
+              <button class="btn btn-primary" (click)="purchase()" >Purchase</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </ng-conatiner>
+  </div>
+</div>
