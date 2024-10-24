@@ -11,7 +11,6 @@ declare module 'express-serve-static-core' {
 
 const cookieJWTAuth = (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log("Auth called")
         if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
             let token = req.headers.authorization.split(" ")[1];
             const user = jwt.verify(token, jwt_secret_key);

@@ -7,7 +7,6 @@ import { cookieJWTAuth } from "../middleware/jwtAuth";
 
 itemRouter.post('/addItem', cookieJWTAuth, async (req, res) => {
     try {
-        console.log(req.body);
         let { category, name, desc, price, quantity, img, user_id, type } = req.body.data;
         const item_id = generateRandomId();
         let item = await itemModel.insertMany({ item_id: item_id, user_id: user_id, type: type, category: category, name: name, desc: desc, price, quantity: quantity, status: true, added_date: new Date(), updated_date: new Date(), img: img });

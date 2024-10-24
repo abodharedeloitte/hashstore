@@ -251,9 +251,7 @@ export class AppComponent {
   edit: boolean = false;
 
   editItem(data: any) {
-    console.log(data)
     this.edit = true;
-    // item_id, category, name, desc, price, quantity, img
     this.sell_item_form.patchValue({ item_id: data.item_id })
     this.sell_item_form.patchValue({ category: data.category })
     this.sell_item_form.patchValue({ name: data.name })
