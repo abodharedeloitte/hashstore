@@ -12,7 +12,6 @@ const userRouting_1 = require("./userRouting");
 const jwtAuth_1 = require("../middleware/jwtAuth");
 itemRouter.post('/addItem', jwtAuth_1.cookieJWTAuth, async (req, res) => {
     try {
-        console.log(req.body);
         let { category, name, desc, price, quantity, img, user_id, type } = req.body.data;
         const item_id = (0, userRouting_1.generateRandomId)();
         let item = await model_1.itemModel.insertMany({ item_id: item_id, user_id: user_id, type: type, category: category, name: name, desc: desc, price, quantity: quantity, status: true, added_date: new Date(), updated_date: new Date(), img: img });
@@ -26,7 +25,7 @@ itemRouter.post('/addItem', jwtAuth_1.cookieJWTAuth, async (req, res) => {
 itemRouter.get('/getAllItems', async (req, res) => {
     try {
         let data = await model_1.itemModel.find({ status: true, type: 'sell' });
-        res.json({ status: 200, message: "Successfully load trade data", result: data });
+        res.json({ status: 200, message: "Successfully load sell data", result: data });
     }
     catch (error) {
         console.log(error);
@@ -36,7 +35,7 @@ itemRouter.get('/getAllItems', async (req, res) => {
 itemRouter.get('/accessAllTradeItems', async (req, res) => {
     try {
         let data = await model_1.itemModel.find({ status: true, type: 'trade' });
-        res.json({ status: 200, message: "Successfully load data", result: data });
+        res.json({ status: 200, message: "Successfully load trade data", result: data });
     }
     catch (error) {
         console.log(error);

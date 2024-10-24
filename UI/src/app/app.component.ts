@@ -58,7 +58,6 @@ export class AppComponent {
     // localStorage.clear()
     this.auth = localStorage.getItem('customer_auth');
     const expirationDate = localStorage.getItem('customer_authExpiration');
-    console.log(this.auth, expirationDate);
     if (this.auth && expirationDate) {
       const date = new Date(expirationDate);
       if (date <= new Date()) {
@@ -107,7 +106,6 @@ export class AppComponent {
     });
     dialog.afterClosed().subscribe((res) => {
       if (res) {
-        console.log(res);
         this.backendService.register(res).subscribe((res) => {
           if (res) {
             this.snackBar.open(`${res.message}`, 'Close', { duration: 2000 });
@@ -152,7 +150,6 @@ export class AppComponent {
             const expirationDate = new Date(new Date().getTime() + 10 * 60 * 60 * 1000);
             localStorage.setItem("customer_auth", res.result[0]['user_id']);
             localStorage.setItem("customer_authExpiration", expirationDate.toString());
-            console.log(localStorage.getItem('customer_auth'))
             this.alreadyLogin = true
             this.snackBar.open(`Login Successfully`, 'Close', { duration: 3000 });
           } else {
@@ -176,7 +173,6 @@ export class AppComponent {
     this.component = true;
     this.add_to_card = false;
     this.userId = localStorage.getItem('customer_auth');
-    console.log(this.userId);
     this.backendService.getUserDetails(this.userId).subscribe((res) => {
       if (res?.result) {
         this.user_data = res.result[0];
@@ -188,7 +184,6 @@ export class AppComponent {
             }
           })
         })
-        console.log(this.users_purschase_items)
       } else {
         this.snackBar.open(res.message, 'Close', { duration: 3000 });
       }
@@ -202,7 +197,6 @@ export class AppComponent {
   addToCard(data: any) {
     if (this.alreadyLogin) {
       this.selected_item = data;
-      console.log(this.selected_item);
       this.add_to_card = true;
       this.component = false;
     } else {
@@ -215,9 +209,7 @@ export class AppComponent {
       let item_id = this.selected_item['item_id'];
       let user_id = localStorage.getItem('customer_auth');
       let price = (this.selected_item.price * this.qty).toFixed(2);
-      console.log(this.add_to_card_form.value)
       this.backendService.addToCard({ form: this.add_to_card_form.value, item_id: item_id, user_id: user_id, price: price }).subscribe((res) => {
-        console.log(res);
         if (res.result) {
           this.add_to_card = false;
           this.component = true;
@@ -233,10 +225,8 @@ export class AppComponent {
   }
 
   deleteItemFromCard(item_id: any, type: any) {
-    console.log(item_id, localStorage.getItem('customer_auth'));
     if (type === 'from_my_item') {
       this.backendService.removeItemFromCard(item_id, localStorage.getItem('customer_auth')).subscribe((res) => {
-        console.log(res);
         this.users_purschase_items = this.users_purschase_items.filter(pro => pro.item_id === item_id);
       })
     } else if (type == 'from_sell_card') {
@@ -265,7 +255,6 @@ export class AppComponent {
     const paymentType = 'Settlement';
     const type = 'buy'
     this.backendService.generateTransaction(localStorage.getItem('customer_auth'), item_id, amount, payment_mode, paymentType, type).subscribe((res) => {
-      console.log(res);
     })
   }
 
@@ -299,28 +288,23 @@ export class AppComponent {
   }
 
   addItem() {
-    console.log("customer_auth", localStorage.getItem('customer_auth'))
     this.sell_item_form.patchValue({ user_id: localStorage.getItem('customer_auth') });
     this.sell_item_form.patchValue({ type: 'sell' });
-    console.log(this.sell_item_form.value, this.sell_item_form.valid);
     if (this.sell_item_form.valid) {
       this.backendService.addItem(this.sell_item_form.value).subscribe((res) => {
-        console.log(res)
         this.users_sell_items = []
         this.accessAllItem();
+        this.sell_item_form.reset();
       })
     }
   }
 
 
   addTradeItem() {
-    console.log("customer_auth", localStorage.getItem('customer_auth'))
     this.sell_item_form.patchValue({ user_id: localStorage.getItem('customer_auth') });
     this.sell_item_form.patchValue({ type: 'trade' });
-    console.log(this.sell_item_form.value, this.sell_item_form.valid);
     if (this.sell_item_form.valid) {
       this.backendService.addItem(this.sell_item_form.value).subscribe((res) => {
-        console.log(res)
         this.accessTradeItems();
         this.snackBar.open(`${res.message}`, 'Close', { duration: 2000 });
         this.sell_item_form.reset();

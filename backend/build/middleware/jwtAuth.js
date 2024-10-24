@@ -8,7 +8,6 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const jwt_secret_key = 'JWTAuthLogin';
 const cookieJWTAuth = (req, res, next) => {
     try {
-        console.log("Auth called");
         if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
             let token = req.headers.authorization.split(" ")[1];
             const user = jsonwebtoken_1.default.verify(token, jwt_secret_key);

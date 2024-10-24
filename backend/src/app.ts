@@ -27,6 +27,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(cookieParser());
 app.use('/hashstore', router);
+app.use((req, res, next) => {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000')
+})
+
+app.use(cors({
+    origin: [
+        'http://localhost:4200/',
+        'http://localhost:4200/hashstore',
+        'http://localhost:8484/hashstore'
+    ]
+}))
 
 app.listen(port, () => {
     console.log(`server started on port ${port}`)

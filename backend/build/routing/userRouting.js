@@ -144,7 +144,6 @@ userRouter.post('/login', async (req, res) => {
                 return;
             }
             const token = jsonwebtoken_1.default.sign({ user_id: user[0]['user_id'], emailID: user[0]['emailID'] }, jwt_secret_key, { expiresIn: '1h' });
-            console.log("Token", token);
             res.json({ status: 200, message: 'Login Successfully', result: user, token: token });
         }
     }
