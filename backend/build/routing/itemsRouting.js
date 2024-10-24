@@ -65,7 +65,7 @@ itemRouter.get('/getItemByCategory', jwtAuth_1.cookieJWTAuth, async (req, res) =
 });
 itemRouter.post('/updateItemById', jwtAuth_1.cookieJWTAuth, async (req, res) => {
     try {
-        let { item_id, category, name, desc, price, quantity, img } = req.body;
+        let { item_id, category, name, desc, price, quantity, img } = req.body.data;
         const data = await model_1.itemModel.findOne({ item_id: item_id });
         if (!data) {
             res.json({ status: 200, message: "No item found", result: data });
@@ -129,7 +129,7 @@ itemRouter.get('/filterData', jwtAuth_1.cookieJWTAuth, async (req, res) => {
         }
         let sortOrder = sort === 'asc' ? 1 : -1;
         const items = await model_1.itemModel.find(condition).sort({ name: sortOrder });
-        res.json({ status: 200, message: "Successfully update data", result: items });
+        res.json({ status: 200, message: "Successfully filter data", result: items });
     }
     catch (error) {
         console.log(error);

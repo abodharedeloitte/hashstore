@@ -14,6 +14,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const jwt_secret_key = 'JWTAuthLogin';
 const jwtAuth_1 = require("../middleware/jwtAuth");
 const joi_1 = __importDefault(require("joi"));
+// register validation
 const registerSchema = joi_1.default.object({
     name: joi_1.default.string().required().messages({
         'string.empty': 'Name is required',
@@ -38,6 +39,44 @@ const registerSchema = joi_1.default.object({
 });
 const validateRegister = (req, res, next) => {
     const { error } = registerSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+        const errors = error.details.map(detail => ({
+            message: detail.message,
+            path: detail.path,
+        }));
+        return res.status(400).json({ status: 400, errors });
+    }
+    next();
+};
+// add items to card validation
+const addItemToCardSchema = joi_1.default.object({
+    address: joi_1.default.string().required().messages({
+        'string.empty': 'Address is required',
+    }),
+    payment_mode: joi_1.default.string().valid('Online', 'Cash On Delivary').required().messages({
+        'string.empty': 'Payment mode is required',
+        'any.only': 'Payment mode must be one of [Online , Cash On Delivery]',
+    }),
+    quantity: joi_1.default.number().integer().min(1).required().messages({
+        'number.base': 'Quantity must be a number',
+        'number.integer': 'Quantity must be an integer',
+        'number.min': 'Quantity must be at least 1',
+        'any.required': 'Quantity is required',
+    }),
+    user_id: joi_1.default.string().required().messages({
+        'string.empty': 'User ID is required',
+    }),
+    item_id: joi_1.default.string().required().messages({
+        'string.empty': 'Item ID is required',
+    }),
+    price: joi_1.default.number().positive().required().messages({
+        'number.base': 'Price must be a number',
+        'number.positive': 'Price must be a positive number',
+        'any.required': 'Price is required',
+    }),
+});
+const validateAddItemToCard = (req, res, next) => {
+    const { error } = addItemToCardSchema.validate(Object.assign(Object.assign({}, req.body), req.body.form), { abortEarly: false });
     if (error) {
         const errors = error.details.map(detail => ({
             message: detail.message,
@@ -135,7 +174,6 @@ userRouter.post('/forgotPassword', jwtAuth_1.cookieJWTAuth, async (req, res) => 
 });
 userRouter.post('/getUserItems', jwtAuth_1.cookieJWTAuth, async (req, res) => {
     try {
-        console.log(req.body);
         let { user_id } = req.body;
         const user_data = await model_1.userModel.find({ user_id: user_id });
         res.json({ status: 200, message: "Item load successfully", result: user_data });

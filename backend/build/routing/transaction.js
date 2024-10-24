@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.transactionRouter = void 0;
+exports.generateTransactionId = generateTransactionId;
 const express_1 = __importDefault(require("express"));
 const transactionRouter = express_1.default.Router();
 exports.transactionRouter = transactionRouter;
@@ -35,7 +36,7 @@ transactionRouter.get('/getTransaction', jwtAuth_1.cookieJWTAuth, async (req, re
     try {
         let { user_id } = req.body;
         const transaction = await model_1.transactionModel.find({ user_id: user_id });
-        res.json({ status: 200, message: "Transaction Successfully", result: transaction });
+        res.json({ status: 200, message: "Load Transaction Successfully", result: transaction });
     }
     catch (error) {
         console.log(error);

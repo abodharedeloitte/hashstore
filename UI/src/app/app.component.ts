@@ -39,6 +39,7 @@ export class AppComponent {
     });
 
     this.sell_item_form = this.fb.group({
+      item_id: [''],
       name: ['', Validators.required],
       quantity: ['', Validators.required],
       category: ['', Validators.required],
@@ -79,11 +80,10 @@ export class AppComponent {
       if (res.result) {
         this.products = res.result;
         this.products.forEach((item: any) => {
-          if (item.user_id == this.auth) {
+          if (item.user_id == localStorage.getItem('customer_auth')) {
             this.users_sell_items.push(item);
           }
         })
-        console.log(this.users_sell_items)
       }
     })
   }
@@ -151,6 +151,7 @@ export class AppComponent {
             const expirationDate = new Date(new Date().getTime() + 10 * 60 * 60 * 1000);
             localStorage.setItem("customer_auth", res.result[0]['user_id']);
             localStorage.setItem("customer_authExpiration", expirationDate.toString());
+            console.log(localStorage.getItem('customer_auth'))
             this.alreadyLogin = true
             this.snackBar.open(`Login Successfully`, 'Close', { duration: 3000 });
           } else {
@@ -165,7 +166,7 @@ export class AppComponent {
     localStorage.clear();
     this.component = false;
     this.add_to_card = false;
-    this.alreadyLogin=false;
+    this.alreadyLogin = false;
   }
   userId: any;
   user_data: any;
@@ -174,7 +175,7 @@ export class AppComponent {
     this.component = true;
     this.add_to_card = false;
     this.userId = localStorage.getItem('customer_auth');
-    // console.log(this.userId);
+    console.log(this.userId);
     this.backendService.getUserDetails(this.userId).subscribe((res) => {
       if (res?.result) {
         this.user_data = res.result[0];
@@ -187,6 +188,8 @@ export class AppComponent {
           })
         })
         console.log(this.users_purschase_items)
+      } else {
+        this.snackBar.open(res.message, 'Close', { duration: 3000 });
       }
     })
   }
@@ -209,7 +212,7 @@ export class AppComponent {
   purchase() {
     if (this.add_to_card_form.valid) {
       let item_id = this.selected_item['item_id'];
-      let user_id = this.auth;
+      let user_id = localStorage.getItem('customer_auth');
       let price = (this.selected_item.price * this.qty).toFixed(2);
       console.log(this.add_to_card_form.value)
       this.backendService.addToCard({ form: this.add_to_card_form.value, item_id: item_id, user_id: user_id, price: price }).subscribe((res) => {
@@ -229,9 +232,9 @@ export class AppComponent {
   }
 
   deleteItemFromCard(item_id: any, type: any) {
-    console.log(item_id, this.auth);
+    console.log(item_id, localStorage.getItem('customer_auth'));
     if (type === 'from_my_item') {
-      this.backendService.removeItemFromCard(item_id, this.auth).subscribe((res) => {
+      this.backendService.removeItemFromCard(item_id, localStorage.getItem('customer_auth')).subscribe((res) => {
         console.log(res);
         this.users_purschase_items = this.users_purschase_items.filter(pro => pro.item_id === item_id);
       })
@@ -244,10 +247,25 @@ export class AppComponent {
     }
   }
 
+  edit: boolean = false;
+
+  editItem(data: any) {
+    console.log(data)
+    this.edit = true;
+    // item_id, category, name, desc, price, quantity, img
+    this.sell_item_form.patchValue({ item_id: data.item_id })
+    this.sell_item_form.patchValue({ category: data.category })
+    this.sell_item_form.patchValue({ name: data.name })
+    this.sell_item_form.patchValue({ desc: data.desc })
+    this.sell_item_form.patchValue({ price: data.price })
+    this.sell_item_form.patchValue({ quantity: data.quantity })
+    this.sell_item_form.patchValue({ quantity: data.quantity })
+  }
+
   payment(item_id: any, amount: any, payment_mode: any) {
     const paymentType = 'Settlement';
     const type = 'buy'
-    this.backendService.generateTransaction(this.auth, item_id, amount, payment_mode, paymentType, type).subscribe((res) => {
+    this.backendService.generateTransaction(localStorage.getItem('customer_auth'), item_id, amount, payment_mode, paymentType, type).subscribe((res) => {
       console.log(res);
     })
   }
@@ -255,6 +273,7 @@ export class AppComponent {
   change_item_type(type: any) {
     if (type) {
       this.item_type = type;
+      this.edit = false;
     }
   }
   onFileChange(event: any) {
@@ -267,7 +286,8 @@ export class AppComponent {
   }
 
   addItem() {
-    this.sell_item_form.patchValue({ user_id: this.auth });
+    console.log("customer_auth", localStorage.getItem('customer_auth'))
+    this.sell_item_form.patchValue({ user_id: localStorage.getItem('customer_auth') });
     console.log(this.sell_item_form.value, this.sell_item_form.valid);
     if (this.sell_item_form.valid) {
       this.backendService.addItem(this.sell_item_form.value).subscribe((res) => {
@@ -275,5 +295,14 @@ export class AppComponent {
         this.accessAllItem();
       })
     }
+  }
+  EditItem() {
+    this.backendService.updateItemById(this.sell_item_form.value).subscribe((res) => {
+      if (res.result) {
+        this.users_sell_items = []
+        this.accessAllItem();
+        this.sell_item_form.reset();
+      }
+    })
   }
 }

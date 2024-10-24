@@ -26,6 +26,8 @@ export class ServiceService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
+    console.log(token);
+    console.log(headers)
     return this.http.post(this.backend + `/user/getUserItems`, { user_id })
   }
 
@@ -68,6 +70,15 @@ export class ServiceService {
       'Authorization': `Bearer ${token}`
     });
     return this.http.post(this.backend + `/items/deleteItemById`, { data });
+  }
+
+
+  updateItemById(data: any): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.post(this.backend + `/items/updateItemById`, { data });
   }
 
 }

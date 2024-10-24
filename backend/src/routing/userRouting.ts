@@ -189,7 +189,6 @@ userRouter.post('/forgotPassword', cookieJWTAuth, async (req, res) => {
 
 userRouter.post('/getUserItems', cookieJWTAuth, async (req, res) => {
     try {
-        console.log(req.body)
         let { user_id } = req.body;
         const user_data = await userModel.find({ user_id: user_id });
         res.json({ status: 200, message: "Item load successfully", result: user_data })
@@ -199,7 +198,7 @@ userRouter.post('/getUserItems', cookieJWTAuth, async (req, res) => {
     }
 })
 
-userRouter.post('/addItemToCard', validateAddItemToCard, cookieJWTAuth, async (req, res) => {
+userRouter.post('/addItemToCard', cookieJWTAuth, async (req, res) => {
     try {
         let { address, payment_mode, quantity } = req.body.form;
         let { user_id, item_id, price } = req.body;

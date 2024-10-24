@@ -32,11 +32,11 @@ transactionRouter.get('/getTransaction', cookieJWTAuth, async (req, res) => {
     try {
         let { user_id } = req.body
         const transaction = await transactionModel.find({ user_id: user_id });
-        res.json({ status: 200, message: "Transaction Successfully", result: transaction })
+        res.json({ status: 200, message: "Load Transaction Successfully", result: transaction })
     } catch (error) {
         console.log(error);
         res.json({ status: 500, message: "Transaction failed" });
     }
 })
 
-export { transactionRouter }
+export { transactionRouter, generateTransactionId }
