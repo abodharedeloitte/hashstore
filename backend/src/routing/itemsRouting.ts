@@ -8,9 +8,9 @@ import { cookieJWTAuth } from "../middleware/jwtAuth";
 itemRouter.post('/addItem', cookieJWTAuth, async (req, res) => {
     try {
         console.log(req.body);
-        let { category, name, desc, price, quantity, img, user_id } = req.body.data;
+        let { category, name, desc, price, quantity, img, user_id, type } = req.body.data;
         const item_id = generateRandomId();
-        let item = await itemModel.insertMany({ item_id: item_id, user_id: user_id, category: category, name: name, desc: desc, price, quantity: quantity, status: true, added_date: new Date(), updated_date: new Date(), img: img });
+        let item = await itemModel.insertMany({ item_id: item_id, user_id: user_id, type: type, category: category, name: name, desc: desc, price, quantity: quantity, status: true, added_date: new Date(), updated_date: new Date(), img: img });
         res.json({ status: 200, message: "Item added successfully", result: item });
     } catch (error) {
         console.log(error);
@@ -20,8 +20,18 @@ itemRouter.post('/addItem', cookieJWTAuth, async (req, res) => {
 
 itemRouter.get('/getAllItems', async (req, res) => {
     try {
-        let data = await itemModel.find({ status: true });
-        res.json({ status: 200, message: "Successfully load data", result: data });
+        let data = await itemModel.find({ status: true, type: 'sell' });
+        res.json({ status: 200, message: "Successfully load sell data", result: data });
+    } catch (error) {
+        console.log(error);
+        res.json({ status: 500, message: "Item loading Failed" });
+    }
+})
+
+itemRouter.get('/accessAllTradeItems', async (req, res) => {
+    try {
+        let data = await itemModel.find({ status: true, type: 'trade' });
+        res.json({ status: 200, message: "Successfully load trade data", result: data });
     } catch (error) {
         console.log(error);
         res.json({ status: 500, message: "Item loading Failed" });

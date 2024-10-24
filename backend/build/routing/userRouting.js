@@ -131,20 +131,22 @@ userRouter.post('/login', async (req, res) => {
             res.json({ status: 401, message: 'Please enter the valid emailid' });
             return;
         }
-        const user = await model_1.userModel.find({ emailID });
-        if (!user) {
+        const user = await model_1.userModel.find({ emailID: emailID });
+        if (user.length == 0) {
             res.json({ status: 404, message: 'User not found' });
             return;
         }
-        const userPassword = user[0]['password'];
-        let validPassword = await bcrypt_1.default.compare(password, userPassword);
-        if (user && !validPassword) {
-            res.json({ status: 403, message: 'Password is incorrect' });
-            return;
+        else {
+            const userPassword = user[0]['password'];
+            let validPassword = await bcrypt_1.default.compare(password, userPassword);
+            if (user && !validPassword) {
+                res.json({ status: 403, message: 'Password is incorrect' });
+                return;
+            }
+            const token = jsonwebtoken_1.default.sign({ user_id: user[0]['user_id'], emailID: user[0]['emailID'] }, jwt_secret_key, { expiresIn: '1h' });
+            console.log("Token", token);
+            res.json({ status: 200, message: 'Login Successfully', result: user, token: token });
         }
-        const token = jsonwebtoken_1.default.sign({ user_id: user[0]['user_id'], emailID: user[0]['emailID'] }, jwt_secret_key, { expiresIn: '1h' });
-        console.log("Token", token);
-        res.json({ status: 200, message: 'Login Successfully', result: user, token: token });
     }
     catch (error) {
         console.log(error);

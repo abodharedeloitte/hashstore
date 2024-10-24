@@ -24,6 +24,11 @@ const itemsSchema: Schema = new Schema({
     img: {
         type: String
     },
+    type: {
+        type: String,
+        enum: ['buy', 'sell', 'trade'],
+        required: true
+    },
     price: {
         type: Number,
         require: true

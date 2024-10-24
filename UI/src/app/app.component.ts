@@ -46,9 +46,9 @@ export class AppComponent {
       desc: ['', Validators.required],
       price: ['', Validators.required],
       img: ['', Validators.required],
-      user_id: ['', Validators.required]
+      user_id: ['', Validators.required],
+      type: ['']
     })
-
   }
 
   products: Item[] = [];
@@ -110,6 +110,7 @@ export class AppComponent {
         console.log(res);
         this.backendService.register(res).subscribe((res) => {
           if (res) {
+            this.snackBar.open(`${res.message}`, 'Close', { duration: 2000 });
             const dialog = this.dialog.open(LoginComponent, {
               data: {
                 title: 'Login',
@@ -118,13 +119,13 @@ export class AppComponent {
             dialog.afterClosed().subscribe((res) => {
               if (res) {
                 this.backendService.login(res).subscribe((res) => {
-                  console.log(res);
                   if (res) {
                     localStorage.setItem('token', res.token)
                     const expirationDate = new Date(new Date().getTime() + 10 * 60 * 60 * 1000);
                     localStorage.setItem("customer_auth", res.result[0]['user_id']);
                     localStorage.setItem("customer_authExpiration", expirationDate.toString());
                     this.alreadyLogin = true
+                    this.snackBar.open(`${res.message}`, 'Close', { duration: 2000 })
                   } else {
                     this.snackBar.open(`${res.message}`, 'Close', { duration: 3000 });
                   }
@@ -270,11 +271,25 @@ export class AppComponent {
     })
   }
 
+
+  tradeItems: any;
+
   change_item_type(type: any) {
     if (type) {
       this.item_type = type;
       this.edit = false;
     }
+    if (type == 'trade') {
+      this.accessTradeItems();
+    }
+  }
+
+  accessTradeItems() {
+    this.backendService.accessAllTradeItems().subscribe((res) => {
+      if (res.result) {
+        this.tradeItems = res.result;
+      }
+    })
   }
   onFileChange(event: any) {
     const file = event.target.files[0];
@@ -288,14 +303,33 @@ export class AppComponent {
   addItem() {
     console.log("customer_auth", localStorage.getItem('customer_auth'))
     this.sell_item_form.patchValue({ user_id: localStorage.getItem('customer_auth') });
+    this.sell_item_form.patchValue({ type: 'sell' });
     console.log(this.sell_item_form.value, this.sell_item_form.valid);
     if (this.sell_item_form.valid) {
       this.backendService.addItem(this.sell_item_form.value).subscribe((res) => {
         console.log(res)
+        this.users_sell_items = []
         this.accessAllItem();
       })
     }
   }
+
+
+  addTradeItem() {
+    console.log("customer_auth", localStorage.getItem('customer_auth'))
+    this.sell_item_form.patchValue({ user_id: localStorage.getItem('customer_auth') });
+    this.sell_item_form.patchValue({ type: 'trade' });
+    console.log(this.sell_item_form.value, this.sell_item_form.valid);
+    if (this.sell_item_form.valid) {
+      this.backendService.addItem(this.sell_item_form.value).subscribe((res) => {
+        console.log(res)
+        this.accessTradeItems();
+        this.snackBar.open(`${res.message}`, 'Close', { duration: 2000 });
+        this.sell_item_form.reset();
+      })
+    }
+  }
+
   EditItem() {
     this.backendService.updateItemById(this.sell_item_form.value).subscribe((res) => {
       if (res.result) {

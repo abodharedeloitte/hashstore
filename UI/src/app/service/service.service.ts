@@ -81,4 +81,12 @@ export class ServiceService {
     return this.http.post(this.backend + `/items/updateItemById`, { data });
   }
 
+
+  accessAllTradeItems(): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get(this.backend + `/items/accessAllTradeItems`);
+  }
 }

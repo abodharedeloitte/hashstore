@@ -141,25 +141,24 @@ userRouter.post('/login', async (req, res) => {
             return
         }
 
-        const user = await userModel.find({ emailID });
-
-        if (!user) {
+        const user = await userModel.find({ emailID: emailID });
+        if (user.length == 0) {
             res.json({ status: 404, message: 'User not found' });
             return;
+        } else {
+            const userPassword = user[0]['password'] as string;
+            let validPassword = await bcrypt.compare(password, userPassword)
+
+            if (user && !validPassword) {
+                res.json({ status: 403, message: 'Password is incorrect' });
+                return;
+            }
+
+            const token = jwt.sign({ user_id: user[0]['user_id'], emailID: user[0]['emailID'] }, jwt_secret_key, { expiresIn: '1h' });
+            console.log("Token", token)
+
+            res.json({ status: 200, message: 'Login Successfully', result: user, token: token });
         }
-
-        const userPassword = user[0]['password'] as string;
-        let validPassword = await bcrypt.compare(password, userPassword)
-
-        if (user && !validPassword) {
-            res.json({ status: 403, message: 'Password is incorrect' });
-            return;
-        }
-
-        const token = jwt.sign({ user_id: user[0]['user_id'], emailID: user[0]['emailID'] }, jwt_secret_key, { expiresIn: '1h' });
-        console.log("Token", token)
-
-        res.json({ status: 200, message: 'Login Successfully', result: user, token: token });
     } catch (error) {
         console.log(error);
         res.json({ status: 500, message: "Login Failed" });

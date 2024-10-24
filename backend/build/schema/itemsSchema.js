@@ -24,6 +24,11 @@ const itemsSchema = new mongoose_1.Schema({
     img: {
         type: String
     },
+    type: {
+        type: String,
+        enum: ['buy', 'sell', 'trade'],
+        required: true
+    },
     price: {
         type: Number,
         require: true
